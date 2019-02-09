@@ -22,7 +22,6 @@ window.onload = function(){
                 ctxW.fillRect(x, 20, 50, 150);
                 ctxW.strokeRect(x, 20, 50, 150);
                 x += 50;
-                console.log('clear');
             }else{
                 ctxW.fillStyle = 'white';
                 ctxW.strokeRect(x, 20, 50, 150);
@@ -68,16 +67,16 @@ window.onload = function(){
         'value': 0
     });
 
-    var slider2 = new Nexus.Slider('#slider2',{
+    var delaySlider = new Nexus.Slider('#slider2',{
         'size': [120,20],
         'mode': 'relative',  // 'relative' or 'absolute'
-        'min': 0,
+        'min': 0.16,
         'max': 1,
         'step': 0,
-        'value': 0
+        'value': 0.16
     });
 
-    var slider3 = new Nexus.Slider('#slider3',{
+    var reverbSlider = new Nexus.Slider('#slider3',{
         'size': [120,20],
         'mode': 'relative',  // 'relative' or 'absolute'
         'min': 0,
@@ -92,13 +91,13 @@ window.onload = function(){
         'active': -1
     });
 
-    var radiobutton2 = new Nexus.RadioButton('#button2',{
+    var delayButton = new Nexus.RadioButton('#button2',{
         'size': [120,25],
         'numberOfButtons': 1,
         'active': -1
     });
 
-    var radiobutton3 = new Nexus.RadioButton('#button3',{
+    var reverbButton = new Nexus.RadioButton('#button3',{
         'size': [120,25],
         'numberOfButtons': 1,
         'active': -1
@@ -112,16 +111,11 @@ window.onload = function(){
     masterButton.colorize("accent","green");
     masterButton.colorize("fill","dark");
 
-    var select = new Nexus.Select('instrument',{
-        'size': [100,30],
-        'options': ['Wurlitzer','Organ']
-    });
-
     //##################################             ###########################################
     //##################################    Setup    ###########################################
     //##################################             ###########################################
 
-    var aCtx, vco, vca, biquadFilter, wave;
+    var aCtx, vco, vca, biquadFilter, delay, delayAmount, wave;
     var runOnce = true;
     masterButton.on("change", function(e){
         if(runOnce == true){
@@ -134,6 +128,10 @@ window.onload = function(){
 
             biquadFilter = aCtx.createBiquadFilter();
             biquadFilter.type = "lowpass";
+
+            delay = aCtx.createDelay();
+            delayAmount = aCtx.createGain();
+            delayAmount.gain.value = 0.5; // amount of the effect
 
             vco.connect(vca);
             vca.connect(aCtx.destination);
@@ -153,6 +151,11 @@ window.onload = function(){
     //##################################                  ###########################################
     //################################## Change wavetable ###########################################
     //##################################                  ###########################################
+
+    var select = new Nexus.Select('instrument',{
+        'size': [100,30],
+        'options': ['Wurlitzer','Organ']
+    });
 
     select.on("change", function(i){
 
@@ -189,22 +192,44 @@ window.onload = function(){
     //##################################             ###########################################
     //##################################   Filter    ###########################################
     //##################################             ###########################################
-
+    var filterState = false;
     filterButton.on("change", function(e){
-        console.log(e);
+        //console.log(e);
         if(e == 0){
-            vca.disconnect(aCtx.destination);
+            vca.disconnect();
             vca.connect(biquadFilter);
             biquadFilter.connect(aCtx.destination);
         }else{
+            biquadFilter.disconnect();
             vca.connect(aCtx.destination);
-            biquadFilter.disconnect(aCtx.destination);
         }
     });
 
     filterSlider.on('change',function(v) {
         biquadFilter.frequency.setTargetAtTime((15000*v)+100, aCtx.currentTime, 0.05);
         console.log(v);
+    });
+
+    //##################################             ###########################################
+    //##################################   Delay     ###########################################
+    //##################################             ###########################################
+    delayState = false;
+    delayButton.on("change", function(e){
+        //console.log(e);
+        if(e == 0){
+            vca.connect(delay);
+            delay.connect(delayAmount);
+            delayAmount.connect(delay);
+            delayAmount.connect(biquadFilter);
+            delayAmount.connect(aCtx.destination);
+        }else{
+            delayAmount.disconnect();
+        }
+    });
+
+    delaySlider.on('change',function(e) {
+        delay.delayTime.setTargetAtTime(1 * e, aCtx.currentTime, 0.05);
+        console.log(e);
     });
 
     //##################################             ###########################################
@@ -320,7 +345,6 @@ window.onload = function(){
 
     window.addEventListener('keyup', function(event){
         down = false;
-        this.console.log('up');
         drawWhite(20, 14, 'up');
         drawBlack(55, 10, 'up');
         stopSound();
