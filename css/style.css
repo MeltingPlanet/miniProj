@@ -1,0 +1,41 @@
+body{
+    background-color: rgb(153, 37, 37);
+}
+
+#Sliders{
+    margin-top: 50px;
+}
+#slider1{
+    display: inline-block;
+    margin-left: 100px;
+}
+#slider2{
+    display: inline-block;
+    margin-left: 100px;
+}
+#slider3{
+    display: inline-block;
+    margin-left: 100px;
+}
+
+#buttons{
+    display: inline-block;
+}
+
+#button1{
+    display: inline-block;
+    margin-left: 100px;
+}
+#button2{
+    display: inline-block;
+    margin-left: 100px;
+}
+#button3{
+    display: inline-block;
+    margin-left: 100px;
+}
+
+#masterButton{
+    margin-top: 200px;
+    margin-left: 250px;
+}
