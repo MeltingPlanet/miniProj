@@ -1,13 +1,12 @@
 body{
     background-color: rgb(153, 37, 37);
+    font-family: 'Oswald', sans-serif;
 }
 
-#Sliders{
-    margin-top: 50px;
-}
+
 #slider1{
     display: inline-block;
-    margin-left: 100px;
+    margin-left: 90px;
 }
 #slider2{
     display: inline-block;
@@ -17,6 +16,22 @@ body{
     display: inline-block;
     margin-left: 100px;
 }
+p{
+    display: inline-block;
+    margin-top: 20px;
+    font-size: 20px;
+    color: rgb(34,187,187);
+}
+#filter{
+    margin-left: 120px;
+}
+#delay{
+    margin-left: 165px;
+}
+#reverb{
+    margin-left: 175px;
+}
+
 
 #buttons{
     display: inline-block;
@@ -24,7 +39,7 @@ body{
 
 #button1{
     display: inline-block;
-    margin-left: 100px;
+    margin-left: 90px;
 }
 #button2{
     display: inline-block;
@@ -37,5 +52,10 @@ body{
 
 #masterButton{
     margin-top: 200px;
-    margin-left: 250px;
+    margin-left: 270px;
+}
+
+#instrument{
+    margin-top: 150px;
+    margin-left: 320px;
 }
