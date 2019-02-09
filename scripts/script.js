@@ -154,7 +154,7 @@ window.onload = function(){
 
     var select = new Nexus.Select('instrument',{
         'size': [100,30],
-        'options': ['Wurlitzer','Organ']
+        'options': ['Wurlitzer','Organ', "Mk1", "Bass", "Trombone"]
     });
 
     select.on("change", function(i){
@@ -241,6 +241,13 @@ window.onload = function(){
     var voice;
     var down = false;
 
+    var oktav = new Nexus.Select('oktav',{
+        'size': [100,30],
+        'options': ['1', "2", "3", "4", "5", "6"]
+    });
+    oktav.selectedIndex = 2;
+    console.log(oktav.value);
+
     window.addEventListener('keydown', function(event){
         if(down) return;
         down = true;
@@ -249,94 +256,94 @@ window.onload = function(){
             case 'a':
                 console.log('a');
                 drawWhite(20, 14, 0);
-                playSound(noteFreq[3]['C']);
+                playSound(noteFreq[oktav.value]['C']);
                 break;
             case 's':
                 console.log('s');
                 drawWhite(20, 14, 1);
-                playSound(noteFreq[3]['D']);
+                playSound(noteFreq[oktav.value]['D']);
                 break;
             case 'd':
                 console.log('d');
                 drawWhite(20, 14, 2);
-                playSound(noteFreq[3]['E']);
+                playSound(noteFreq[oktav.value]['E']);
                 break;
             case 'f':
                 console.log('f');
                 drawWhite(20, 14, 3);
-                playSound(noteFreq[3]['F']);
+                playSound(noteFreq[oktav.value]['F']);
                 break;
             case 'g':
                 console.log('g');
                 drawWhite(20, 14, 4);
-                playSound(noteFreq[3]['G']);
+                playSound(noteFreq[oktav.value]['G']);
                 break;
             case 'h':
                 console.log('h');
                 drawWhite(20, 14, 5);
-                playSound(noteFreq[3]['A']);
+                playSound(noteFreq[oktav.value]['A']);
                 break;
             case 'j':
                 console.log('j');
                 drawWhite(20, 14, 6);
-                playSound(noteFreq[3]['B']);
+                playSound(noteFreq[oktav.value]['B']);
                 break;
             case 'k':
                 console.log('k');
                 drawWhite(20, 14, 7);
-                playSound(noteFreq[4]['C']);
+                playSound(noteFreq[oktav.value+1]['C']);
                 break;
             case 'l':
                 console.log('l');
                 drawWhite(20, 14, 8);
-                playSound(noteFreq[4]['D']);
+                playSound(noteFreq[oktav.value+1]['D']);
                 break;
             case 'ø':
                 console.log('ø');
                 drawWhite(20, 14, 9);
-                playSound(noteFreq[4]['E']);
+                playSound(noteFreq[oktav.value+1]['E']);
                 break;
             case 'æ':
                 console.log('æ');
                 drawWhite(20, 14, 10);
-                playSound(noteFreq[4]['F']);
+                playSound(noteFreq[oktav.value+1]['F']);
                 break;
 
             //Black keys
             case 'w':
                 console.log('w');
                 drawBlack(55, 10, 0);
-                playSound(noteFreq[3]['C#']);
+                playSound(noteFreq[oktav.value]['C#']);
                 break;
             case 'e':
                 console.log('e');
                 drawBlack(55, 10, 1);
-                playSound(noteFreq[3]['D#']);
+                playSound(noteFreq[oktav.value]['D#']);
                 break;
             case 't':
                 console.log('t');
                 drawBlack(55, 10, 2);
-                playSound(noteFreq[3]['F#']);
+                playSound(noteFreq[oktav.value]['F#']);
                 break;
             case 'y':
                 console.log('y');
                 drawBlack(55, 10, 3);
-                playSound(noteFreq[3]['G#']);
+                playSound(noteFreq[oktav.value]['G#']);
                 break;
             case 'u':
                 console.log('u');
                 drawBlack(55, 10, 4);
-                playSound(noteFreq[3]['A#']);
+                playSound(noteFreq[oktav.value]['A#']);
                 break;
             case 'o':
                 console.log('o');
                 drawBlack(55, 10, 5);
-                playSound(noteFreq[4]['C#']);
+                playSound(noteFreq[oktav.value+1]['C#']);
                 break;
             case 'p':
                 console.log('p');
                 drawBlack(55, 10, 6);
-                playSound(noteFreq[4]['D#']);
+                playSound(noteFreq[oktav.value+1]['D#']);
                 break;
             default:
                 break;

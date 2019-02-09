@@ -17,18 +17,20 @@ body{
     margin-left: 100px;
 }
 p{
-    display: inline-block;
     margin-top: 20px;
     font-size: 20px;
     color: rgb(34,187,187);
 }
 #filter{
+    display: inline-block;
     margin-left: 120px;
 }
 #delay{
+    display: inline-block;
     margin-left: 165px;
 }
 #reverb{
+    display: inline-block;
     margin-left: 175px;
 }
 
@@ -56,6 +58,12 @@ p{
 }
 
 #instrument{
-    margin-top: 150px;
-    margin-left: 320px;
+    display: inline-block;
+    margin-top: 100px;
+    margin-left: 270px;
+    color: rgb(34,187,187);
+}
+#oktav{
+    display: inline-block;
+    color: rgb(34,187,187);
 }
