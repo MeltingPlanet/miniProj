@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>The Wurly</title>
+    <title>The Wavesynth</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Oswald:500" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="screen" href="/css/style.css" />
@@ -17,15 +17,11 @@
         <canvas id="blackKeys" width="740" height="190" 
             style="position: absolute; left: 0; top: 0; z-index: 1; "></canvas>
     </div>
-    <div id="labels">
-        <p id="filter">low pass</p>
-        <p id="delay">delay</p>
-        <p id="reverb">reverb</p>
-    </div>
-    <div id="Sliders">
-        <div id="slider1"></div>
-        <div id="slider2"></div>
-        <div id="slider3"></div>
+
+    <div id="sliders">
+        <div id="slider1">low pass</div>
+        <div id="slider2">Delay</div>
+        <div id="slider3">Tremolo</div>
     </div>
 
     <div id="buttons">
@@ -37,7 +33,7 @@
     <div id="instrument">Instrument</div>
     <div id="oktav">Oktav</div>
     <div>
-        <div id="masterButton"></div>
+        <div id="masterButton"><center>Start the Instrument</center></div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="scripts/NexusUI.js"></script>

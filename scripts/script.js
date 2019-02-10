@@ -31,7 +31,7 @@ window.onload = function(){
         } 
     }
 
-    drawWhite(20, 14);
+    
 
     function drawBlack(x, max, keyboard) {
 
@@ -53,6 +53,17 @@ window.onload = function(){
     }
 
     drawBlack(55, 10);
+    drawWhite(20, 14);
+
+    //################ Draw white keys before keyboard interaction #######################
+
+    x = 20;
+    for(var i = 0; i < 14; i++){
+        ctxW.fillStyle = 'white';
+        ctxW.fillRect(x, 20, 50, 150);
+        ctxW.strokeRect(x, 20, 50, 150);
+        x += 50;
+    }
 
     //##################################                  ###########################################
     //################################## User interaction ###########################################
@@ -76,11 +87,11 @@ window.onload = function(){
         'value': 0.16
     });
 
-    var reverbSlider = new Nexus.Slider('#slider3',{
+    var tremoloSlider = new Nexus.Slider('#slider3',{
         'size': [120,20],
         'mode': 'relative',  // 'relative' or 'absolute'
         'min': 0,
-        'max': 1,
+        'max': 16,
         'step': 0,
         'value': 0
     });
@@ -97,30 +108,31 @@ window.onload = function(){
         'active': -1
     });
 
-    var reverbButton = new Nexus.RadioButton('#button3',{
+    var tremoloButton = new Nexus.RadioButton('#button3',{
         'size': [120,25],
         'numberOfButtons': 1,
         'active': -1
     });
 
-    var masterButton = new Nexus.RadioButton('#masterButton',{
+    var masterButton = new Nexus.Button('#masterButton',{
         'size': [200,100],
-        'numberOfButtons': 1,
-        'active': -1
+        'mode': 'aftertouch',
+        'state': false
     });
-    masterButton.colorize("accent","green");
+    masterButton.colorize("accent",'rgb(34,187,187)');
     masterButton.colorize("fill","dark");
 
     //##################################             ###########################################
     //##################################    Setup    ###########################################
     //##################################             ###########################################
 
-    var aCtx, vco, vca, biquadFilter, delay, delayAmount, wave;
+    var aCtx, vco, vca, biquadFilter, delay, delayAmount, LFO, LFOGain, wave;
+    var dry1, dry2, dry3, dry4, wet1, wet2, wet3, wet4;
     var runOnce = true;
     masterButton.on("change", function(e){
-        if(runOnce == true){
+        if(runOnce == true){    //code will run only once even if you press the button several times
             var AudioContext = window.AudioContext || window.webkitAudioContext;
-            aCtx = new AudioContext();
+            aCtx = new AudioContext();  // Start audio context
 
             vco = aCtx.createOscillator();
             vco.frequency.value = 0;
@@ -132,10 +144,68 @@ window.onload = function(){
             delay = aCtx.createDelay();
             delayAmount = aCtx.createGain();
             delayAmount.gain.value = 0.5; // amount of the effect
+            delay.delayTime.setTargetAtTime(1 * 0.16, aCtx.currentTime, 0.05);
 
+            LFO = aCtx.createOscillator();
+            LFO.frequency.value = 0;
+            LFOGain = aCtx.createGain();
+            LFOGain.gain.value = 0;
+            
+
+            //##################################                  ###########################################
+            //##################################    Dry/Wet for   ###########################################
+            //##################################      effects     ###########################################
+            
+            dry1 = aCtx.createGain();
+            wet1 = aCtx.createGain();
+            dry1.gain.value = 0.5;
+            wet1.gain.value = 0;
+
+            dry2 = aCtx.createGain();
+            wet2 = aCtx.createGain();
+            dry2.gain.value = 0;
+            wet2.gain.value = 0;
+
+            dry3 = aCtx.createGain();
+            wet3 = aCtx.createGain();
+            dry3.gain.value = 0;
+            wet3.gain.value = 0;
+
+
+            //##################################                  ###########################################
+            //##################################    Connections   ###########################################
+            //##################################                  ###########################################
+            LFO.connect(LFOGain);
+            LFOGain.connect(vca.gain);
             vco.connect(vca);
-            vca.connect(aCtx.destination);
+            
+            vca.connect(biquadFilter);
+            vca.connect(delay);
+            vca.connect(dry1);
+
+            biquadFilter.connect(dry2);
+            biquadFilter.connect(wet2);
+
+            delay.connect(delayAmount);
+            delayAmount.connect(delay);
+
+            delayAmount.connect(dry3);
+            delayAmount.connect(wet3);
+
+            dry1.connect(aCtx.destination);
+            dry2.connect(aCtx.destination);
+            dry3.connect(aCtx.destination);
+
+            wet1.connect(aCtx.destination);
+            wet2.connect(aCtx.destination);
+            wet3.connect(aCtx.destination);
+
             vco.start(0);
+            LFO.start(0);
+
+            //##################################                  ###########################################
+            //##################################   Initial sound  ###########################################
+            //##################################                  ###########################################
 
             var ourRequest = new XMLHttpRequest();
             ourRequest.open('GET', "JSON/Wurlitzer.json");
@@ -144,6 +214,7 @@ window.onload = function(){
                 wavetable(myArr);
             };
             ourRequest.send(); 
+
             runOnce = false;
         }
     });
@@ -182,26 +253,29 @@ window.onload = function(){
 
     function playSound(freq){
         vco.frequency.value = freq;
-        vca.gain.setTargetAtTime(1, aCtx.currentTime, 0.01);
+        vca.gain.setTargetAtTime(0.5, aCtx.currentTime, 0.01);
+        LFOGain.gain.setTargetAtTime(0.2, aCtx.currentTime, 0.01);
     }
 
     function stopSound(){
         vca.gain.setTargetAtTime(0, aCtx.currentTime, 0.05);
+        LFOGain.gain.setTargetAtTime(0, aCtx.currentTime, 0.05);
     }
 
     //##################################             ###########################################
     //##################################   Filter    ###########################################
     //##################################             ###########################################
-    var filterState = false;
+
     filterButton.on("change", function(e){
         //console.log(e);
         if(e == 0){
-            vca.disconnect();
-            vca.connect(biquadFilter);
-            biquadFilter.connect(aCtx.destination);
+            dry1.gain.value = 0;
+            wet1.gain.value = 1;
+            wet2.gain.value = 1;
         }else{
-            biquadFilter.disconnect();
-            vca.connect(aCtx.destination);
+            wet1.gain.value = 0;
+            wet2.gain.value = 0;
+            dry1.gain.value = 1;  
         }
     });
 
@@ -213,22 +287,36 @@ window.onload = function(){
     //##################################             ###########################################
     //##################################   Delay     ###########################################
     //##################################             ###########################################
-    delayState = false;
+
     delayButton.on("change", function(e){
         //console.log(e);
         if(e == 0){
-            vca.connect(delay);
-            delay.connect(delayAmount);
-            delayAmount.connect(delay);
-            delayAmount.connect(biquadFilter);
-            delayAmount.connect(aCtx.destination);
+            wet1.gain.value = 1;
+            wet3.gain.value = 1;
         }else{
-            delayAmount.disconnect();
+            wet3.gain.value = 0;
         }
     });
 
     delaySlider.on('change',function(e) {
         delay.delayTime.setTargetAtTime(1 * e, aCtx.currentTime, 0.05);
+        console.log(e);
+    });
+
+    //##################################             ###########################################
+    //##################################   Tremolo   ###########################################
+    //##################################             ###########################################
+
+    tremoloButton.on("change", function(e){
+        if(e == 0){
+            LFOGain.connect(vca.gain);
+        }else{
+            LFOGain.disconnect();
+        }
+    });
+    
+    tremoloSlider.on('change',function(e) {
+        LFO.frequency.setTargetAtTime(e, aCtx.currentTime, 0.05);
         console.log(e);
     });
 
@@ -243,10 +331,9 @@ window.onload = function(){
 
     var oktav = new Nexus.Select('oktav',{
         'size': [100,30],
-        'options': ['1', "2", "3", "4", "5", "6"]
+        'options': ['1', "2", "3", "4", "5"]
     });
     oktav.selectedIndex = 2;
-    console.log(oktav.value);
 
     window.addEventListener('keydown', function(event){
         if(down) return;
@@ -291,22 +378,22 @@ window.onload = function(){
             case 'k':
                 console.log('k');
                 drawWhite(20, 14, 7);
-                playSound(noteFreq[oktav.value+1]['C']);
+                playSound(noteFreq[parseFloat(oktav.value)+1]['C']);
                 break;
             case 'l':
                 console.log('l');
                 drawWhite(20, 14, 8);
-                playSound(noteFreq[oktav.value+1]['D']);
+                playSound(noteFreq[parseFloat(oktav.value)+1]['D']);
                 break;
             case 'ø':
                 console.log('ø');
                 drawWhite(20, 14, 9);
-                playSound(noteFreq[oktav.value+1]['E']);
+                playSound(noteFreq[parseFloat(oktav.value)+1]['E']);
                 break;
             case 'æ':
                 console.log('æ');
                 drawWhite(20, 14, 10);
-                playSound(noteFreq[oktav.value+1]['F']);
+                playSound(noteFreq[parseFloat(oktav.value)+1]['F']);
                 break;
 
             //Black keys
@@ -338,12 +425,12 @@ window.onload = function(){
             case 'o':
                 console.log('o');
                 drawBlack(55, 10, 5);
-                playSound(noteFreq[oktav.value+1]['C#']);
+                playSound(noteFreq[parseFloat(oktav.value)+1]['C#']);
                 break;
             case 'p':
                 console.log('p');
                 drawBlack(55, 10, 6);
-                playSound(noteFreq[oktav.value+1]['D#']);
+                playSound(noteFreq[parseFloat(oktav.value)+1]['D#']);
                 break;
             default:
                 break;
