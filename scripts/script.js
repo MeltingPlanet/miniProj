@@ -72,9 +72,9 @@ window.onload = function(){
     var filterSlider = new Nexus.Slider('#slider1',{
         'size': [120,20],
         'mode': 'relative',  // 'relative' or 'absolute'
-        'min': 0,
-        'max': 1,
-        'step': 0,
+        'min': 50,
+        'max': 18000,
+        'step': 50,
         'value': 0
     });
 
@@ -176,7 +176,7 @@ window.onload = function(){
             //##################################    Connections   ###########################################
             //##################################                  ###########################################
             LFO.connect(LFOGain);
-            LFOGain.connect(vca.gain);
+            //LFOGain.connect(vca.gain);
             vco.connect(vca);
             
             vca.connect(biquadFilter);
@@ -280,7 +280,7 @@ window.onload = function(){
     });
 
     filterSlider.on('change',function(v) {
-        biquadFilter.frequency.setTargetAtTime((15000*v)+100, aCtx.currentTime, 0.05);
+        biquadFilter.frequency.setTargetAtTime(v, aCtx.currentTime, 0.05);
         console.log(v);
     });
 
@@ -314,7 +314,7 @@ window.onload = function(){
             LFOGain.disconnect();
         }
     });
-    
+
     tremoloSlider.on('change',function(e) {
         LFO.frequency.setTargetAtTime(e, aCtx.currentTime, 0.05);
         console.log(e);
