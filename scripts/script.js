@@ -13,7 +13,7 @@ window.onload = function(){
     //kvite tangenter
     function drawWhite(x, max, keyboard) {
 
-        for(var i = 0; i < max; i++){
+        for(var i = 0; i < max; i++){   // Using a for loop to not write the same piece of code maaany times, and good for my key press logic
             if(i === keyboard){
                 ctxW.fillStyle = 'rgb(34,187,187)';
                 ctxW.fillRect(x, 20, 50, 150);
@@ -30,8 +30,6 @@ window.onload = function(){
 
         } 
     }
-
-    
 
     function drawBlack(x, max, keyboard) {
 
@@ -129,26 +127,27 @@ window.onload = function(){
     var aCtx, vco, vca, biquadFilter, delay, delayAmount, LFO, LFOGain, wave;
     var dry1, dry2, dry3, dry4, wet1, wet2, wet3, wet4;
     var runOnce = true;
+
     masterButton.on("change", function(e){
         if(runOnce == true){    //code will run only once even if you press the button several times
             var AudioContext = window.AudioContext || window.webkitAudioContext;
             aCtx = new AudioContext();  // Start audio context
 
-            vco = aCtx.createOscillator();
+            vco = aCtx.createOscillator(); // Create the oscillator which output will be shaped by wavetables and effects
             vco.frequency.value = 0;
             vca = aCtx.createGain();
 
-            biquadFilter = aCtx.createBiquadFilter();
+            biquadFilter = aCtx.createBiquadFilter(); // Create filter
             biquadFilter.type = "lowpass";
 
-            delay = aCtx.createDelay();
+            delay = aCtx.createDelay(); // Create delay
             delayAmount = aCtx.createGain();
             delayAmount.gain.value = 0.5; // amount of the effect
             delay.delayTime.setTargetAtTime(1 * 0.16, aCtx.currentTime, 0.05);
 
-            LFO = aCtx.createOscillator();
-            LFO.frequency.value = 0;
-            LFOGain = aCtx.createGain();
+            LFO = aCtx.createOscillator();  // create low freq ocillator for Tremolo effect
+            LFO.frequency.value = 0;        // Tremolo speed, will be varied by user
+            LFOGain = aCtx.createGain();    // Tremolo depth, will be constant
             LFOGain.gain.value = 0;
             
 
@@ -175,9 +174,8 @@ window.onload = function(){
             //##################################                  ###########################################
             //##################################    Connections   ###########################################
             //##################################                  ###########################################
-            LFO.connect(LFOGain);
-            //LFOGain.connect(vca.gain);
-            vco.connect(vca);
+            LFO.connect(LFOGain); 
+            vco.connect(vca); 
             
             vca.connect(biquadFilter);
             vca.connect(delay);
@@ -200,8 +198,8 @@ window.onload = function(){
             wet2.connect(aCtx.destination);
             wet3.connect(aCtx.destination);
 
-            vco.start(0);
-            LFO.start(0);
+            vco.start(0);   // Start the oscillator in initiation, and will control the sound with gain 
+            LFO.start(0);   
 
             //##################################                  ###########################################
             //##################################   Initial sound  ###########################################
@@ -225,26 +223,26 @@ window.onload = function(){
 
     var select = new Nexus.Select('instrument',{
         'size': [100,30],
-        'options': ['Wurlitzer','Organ', "Mk1", "Bass", "Trombone"]
+        'options': ['Wurlitzer','Organ', "Mk1", "Bass", "Trombone"] //List of sounds to chose from
     });
 
     select.on("change", function(i){
 
         console.log(i.value);
         var ourRequest = new XMLHttpRequest();
-        url = "JSON/" + i.value + ".json";
+        url = "JSON/" + i.value + ".json";  // Make the path with users choice of sound
         console.log(url);
-        ourRequest.open('GET', url);
+        ourRequest.open('GET', url);    // Get the json file corresponding to the sound
         ourRequest.onload = function(){
-            var myArr = JSON.parse(ourRequest.responseText);
-            wavetable(myArr);
+            var myArr = JSON.parse(ourRequest.responseText);    //parse the file to variable
+            wavetable(myArr);   //call function and pass the table as an argument
     };
         ourRequest.send();  
     });
 
     function wavetable(myArr){
-        wave = aCtx.createPeriodicWave(myArr.real, myArr.imag);
-        vco.setPeriodicWave(wave);
+        wave = aCtx.createPeriodicWave(myArr.real, myArr.imag); //create the periodic wave with the table chosen
+        vco.setPeriodicWave(wave);  // set the wave to the oscillator
     }
 
     //##################################               ###########################################
@@ -252,13 +250,13 @@ window.onload = function(){
     //##################################               ###########################################
 
     function playSound(freq){
-        vco.frequency.value = freq;
-        vca.gain.setTargetAtTime(0.5, aCtx.currentTime, 0.01);
-        LFOGain.gain.setTargetAtTime(0.2, aCtx.currentTime, 0.01);
+        vco.frequency.value = freq; // set to frequency coming from the key pressed
+        vca.gain.setTargetAtTime(0.5, aCtx.currentTime, 0.01);  // make it sound / turn up the gain gradually to prevent clicks (envelope)
+        LFOGain.gain.setTargetAtTime(0.2, aCtx.currentTime, 0.01);  // Set the tremolo depth
     }
 
     function stopSound(){
-        vca.gain.setTargetAtTime(0, aCtx.currentTime, 0.05);
+        vca.gain.setTargetAtTime(0, aCtx.currentTime, 0.05);    // "turn off" or rather turn down the sound
         LFOGain.gain.setTargetAtTime(0, aCtx.currentTime, 0.05);
     }
 
@@ -266,9 +264,9 @@ window.onload = function(){
     //##################################   Filter    ###########################################
     //##################################             ###########################################
 
-    filterButton.on("change", function(e){
+    filterButton.on("change", function(e){ // filter button event listener
         //console.log(e);
-        if(e == 0){
+        if(e == 0){ // e == 0 is the "on"-state, or "blue"-state
             dry1.gain.value = 0;
             wet1.gain.value = 1;
             wet2.gain.value = 1;
@@ -279,7 +277,7 @@ window.onload = function(){
         }
     });
 
-    filterSlider.on('change',function(v) {
+    filterSlider.on('change',function(v) {  // filter slider event listener, used to change filter frequency when user interacts with slider
         biquadFilter.frequency.setTargetAtTime(v, aCtx.currentTime, 0.05);
         console.log(v);
     });
@@ -298,7 +296,7 @@ window.onload = function(){
         }
     });
 
-    delaySlider.on('change',function(e) {
+    delaySlider.on('change',function(e) {   // listening for delaytime change / value from slider
         delay.delayTime.setTargetAtTime(1 * e, aCtx.currentTime, 0.05);
         console.log(e);
     });
@@ -309,7 +307,7 @@ window.onload = function(){
 
     tremoloButton.on("change", function(e){
         if(e == 0){
-            LFOGain.connect(vca.gain);
+            LFOGain.connect(vca.gain);  // modulate the gain of the oscillator
         }else{
             LFOGain.disconnect();
         }
@@ -325,25 +323,25 @@ window.onload = function(){
     //##################################             ###########################################
 
     let noteFreq = null;
-    noteFreq = createNoteTable();
+    noteFreq = createNoteTable(); // call function that creates the notetable
     var voice;
     var down = false;
 
     var oktav = new Nexus.Select('oktav',{
         'size': [100,30],
-        'options': ['1', "2", "3", "4", "5"]
+        'options': ['1', "2", "3", "4", "5"] // change octave on user input
     });
-    oktav.selectedIndex = 2;
+    oktav.selectedIndex = 2; //preset octave
 
     window.addEventListener('keydown', function(event){
-        if(down) return;
+        if(down) return; // boolean logic to prevent retriggering of keys while holding them down
         down = true;
-        switch (event.key) {
+        switch (event.key) { // switch used to pick out witch key is pressed
             //White keys
             case 'a':
                 console.log('a');
-                drawWhite(20, 14, 0);
-                playSound(noteFreq[oktav.value]['C']);
+                drawWhite(20, 14, 0);   //draw the white keys
+                playSound(noteFreq[oktav.value]['C']); // turn up the oscillator with note frequency corresponding to user octave and note c
                 break;
             case 's':
                 console.log('s');
@@ -378,7 +376,7 @@ window.onload = function(){
             case 'k':
                 console.log('k');
                 drawWhite(20, 14, 7);
-                playSound(noteFreq[parseFloat(oktav.value)+1]['C']);
+                playSound(noteFreq[parseFloat(oktav.value)+1]['C']); // use parseFloat to be able to perform math operation
                 break;
             case 'l':
                 console.log('l');
@@ -437,7 +435,7 @@ window.onload = function(){
         }
     }, false);
 
-    window.addEventListener('keyup', function(event){
+    window.addEventListener('keyup', function(event){   // stop sound and draw the piano without key presses (colors) 
         down = false;
         drawWhite(20, 14, 'up');
         drawBlack(55, 10, 'up');
